@@ -1,0 +1,48 @@
+// Security policy for the Java execution environment
+// This limits what the executed code can do to prevent malicious actions
+
+// Grant basic permissions for execution
+grant {
+    // Allow reading and writing to the local filesystem (within the container)
+    permission java.io.FilePermission "<<ALL FILES>>", "read, write";
+    
+    // Allow creating and running threads
+    permission java.lang.RuntimePermission "modifyThread";
+    permission java.lang.RuntimePermission "modifyThreadGroup";
+    
+    // Allow access to system properties
+    permission java.util.PropertyPermission "*", "read";
+    
+    // Allow class loading
+    permission java.lang.RuntimePermission "getClassLoader";
+    permission java.lang.RuntimePermission "accessClassInPackage.*";
+    
+    // Allow reflection (necessary for data structure introspection)
+    permission java.lang.reflect.ReflectPermission "suppressAccessChecks";
+    
+    // Allow string encoding methods
+    permission java.security.SecurityPermission "getPolicy";
+    permission java.security.SecurityPermission "insertProvider";
+    
+    // Allow creating class loaders
+    permission java.lang.RuntimePermission "createClassLoader";
+    
+    // Allow connecting to localhost (for internal communication if needed)
+    permission java.net.SocketPermission "localhost:1024-", "listen, resolve, connect";
+};
+
+// Deny dangerous operations
+grant {
+    // Deny system exit
+    permission java.lang.RuntimePermission "exitVM";
+    
+    // Deny file system operations outside of the container
+    permission java.io.FilePermission "<<ALL FILES>>", "delete";
+    permission java.io.FilePermission "/-", "read, write, delete";
+    
+    // Deny system property modification
+    permission java.util.PropertyPermission "*", "write";
+    
+    // Deny class loader creation
+    permission java.lang.RuntimePermission "setContextClassLoader";
+};

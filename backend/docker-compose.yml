@@ -1,0 +1,22 @@
+version: '3.8'
+
+services:
+  java-execution:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: java-execution-container
+    security_opt:
+      - no-new-privileges:true
+    mem_limit: 100m
+    mem_reservation: 50m
+    cpus: 0.5
+    # Disallow networking for security
+    network_mode: none
+    # Mount only necessary volumes
+    read_only: true
+    tmpfs:
+      - /tmp
+      - /var/run
+    # Run as non-root user
+    user: "nobody"
