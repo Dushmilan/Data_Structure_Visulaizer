@@ -1,6 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
+const fs = require('fs');
 const rateLimit = require('express-rate-limit'); // Add rate limiting
 const { exec } = require('child_process');
 const { promisify } = require('util');
@@ -151,10 +152,20 @@ app.post('/api/reset', (req, res) => {
 // Serve static files from frontend build directory (for production)
 app.use(express.static(path.join(__dirname, '../frontend/ds_visualizer/build')));
 
-// Handle React routing
-app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, '../frontend/ds_visualizer/build', 'index.html'));
-});
+// Handle React routing (only if we're serving the built frontend)
+// For development, we'll skip this and just serve API routes
+// Only add this route if the frontend build exists
+try {
+  const indexPath = path.join(__dirname, '../frontend/ds_visualizer/build', 'index.html');
+  fs.accessSync(indexPath, fs.constants.F_OK);
+
+  app.get('*', (req, res) => {
+    res.sendFile(indexPath);
+  });
+} catch (e) {
+  // If build directory doesn't exist, just log a message
+  console.log('Frontend build directory not found. Serving API only.');
+}
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
