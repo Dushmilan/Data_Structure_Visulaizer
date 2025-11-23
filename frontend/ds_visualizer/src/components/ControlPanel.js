@@ -1,35 +1,46 @@
-import React, { useState } from 'react';
+import React from 'react';
+import { useAppContext } from '../context/AppContext';
 
 const ControlPanel = () => {
-  const [executionState, setExecutionState] = useState('stopped'); // stopped, running, paused
-  const [currentStep, setCurrentStep] = useState(0);
-  const [totalSteps, setTotalSteps] = useState(0);
+  const {
+    state,
+    setExecutionState,
+    setCurrentStep,
+    setTotalSteps,
+    addOutput,
+    clearOutput,
+    resetExecution
+  } = useAppContext();
 
   const handleRun = () => {
     console.log('Run code');
     setExecutionState('running');
+    addOutput('Running code...');
   };
 
   const handlePause = () => {
     console.log('Pause execution');
     setExecutionState('paused');
+    addOutput('Execution paused');
   };
 
   const handleStep = () => {
     console.log('Step execution');
     setCurrentStep(prev => prev + 1);
+    addOutput(`Executing step ${state.currentStep + 1}`);
   };
 
   const handleReset = () => {
     console.log('Reset execution');
-    setExecutionState('stopped');
-    setCurrentStep(0);
+    resetExecution();
+    addOutput('Execution reset');
   };
 
   const handleStop = () => {
     console.log('Stop execution');
     setExecutionState('stopped');
     setCurrentStep(0);
+    addOutput('Execution stopped');
   };
 
   return (
@@ -39,37 +50,37 @@ const ControlPanel = () => {
       </div>
       <div style={{ flex: 1, padding: '15px', display: 'flex', flexDirection: 'column', gap: '15px' }}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-          <button 
+          <button
             onClick={handleRun}
-            disabled={executionState === 'running'}
+            disabled={state.executionState === 'running'}
             style={{
               padding: '10px',
-              backgroundColor: executionState === 'running' ? '#cccccc' : '#4CAF50',
+              backgroundColor: state.executionState === 'running' ? '#cccccc' : '#4CAF50',
               color: 'white',
               border: 'none',
               borderRadius: '4px',
-              cursor: executionState === 'running' ? 'not-allowed' : 'pointer'
+              cursor: state.executionState === 'running' ? 'not-allowed' : 'pointer'
             }}
           >
-            {executionState === 'running' ? 'Running...' : 'Run ▶'}
+            {state.executionState === 'running' ? 'Running...' : 'Run ▶'}
           </button>
-          
-          <button 
+
+          <button
             onClick={handlePause}
-            disabled={executionState !== 'running'}
+            disabled={state.executionState !== 'running'}
             style={{
               padding: '10px',
-              backgroundColor: executionState !== 'running' ? '#cccccc' : '#FF9800',
+              backgroundColor: state.executionState !== 'running' ? '#cccccc' : '#FF9800',
               color: 'white',
               border: 'none',
               borderRadius: '4px',
-              cursor: executionState !== 'running' ? 'not-allowed' : 'pointer'
+              cursor: state.executionState !== 'running' ? 'not-allowed' : 'pointer'
             }}
           >
             Pause ⏸
           </button>
-          
-          <button 
+
+          <button
             onClick={handleStep}
             style={{
               padding: '10px',
@@ -82,8 +93,8 @@ const ControlPanel = () => {
           >
             Step ▷
           </button>
-          
-          <button 
+
+          <button
             onClick={handleReset}
             style={{
               padding: '10px',
@@ -96,8 +107,8 @@ const ControlPanel = () => {
           >
             Reset ↺
           </button>
-          
-          <button 
+
+          <button
             onClick={handleStop}
             style={{
               padding: '10px',
@@ -111,16 +122,16 @@ const ControlPanel = () => {
             Stop
           </button>
         </div>
-        
+
         <div style={{ marginTop: '20px' }}>
           <h4>Execution Status</h4>
-          <p>State: {executionState}</p>
-          <p>Step: {currentStep}/{totalSteps}</p>
+          <p>State: {state.executionState}</p>
+          <p>Step: {state.currentStep}/{state.totalSteps}</p>
         </div>
-        
+
         <div>
           <h4>Output</h4>
-          <div 
+          <div
             style={{
               backgroundColor: '#000',
               color: '#00FF00',
@@ -133,8 +144,7 @@ const ControlPanel = () => {
               whiteSpace: 'pre-wrap'
             }}
           >
-            {/* This would be replaced with actual output from the backend */}
-            Welcome to Data Structure Visualizer!\n\nReady to visualize your code...
+            {state.output}
           </div>
         </div>
       </div>
